@@ -402,18 +402,39 @@ input, textarea { font-family: inherit; outline: none; }
 /* ===== Chat Mode ===== */
 .chat-mode { flex-direction: column; }
 .chat-mode-inner {
-  flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; position: relative;
 }
 
-/* TDesign ChatBot 内部宽度限制 */
-.chat-mode-inner t-chatbot::part(t-chat) {
-  max-width: 100%;
+/* TDesign ChatBot 宽度限制：整体居中，高度撑满 */
+.chat-mode-inner t-chatbot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
-.chat-mode-inner t-chatbot::part(t-chat-input-wrapper) {
+.chat-mode-inner t-chatbot::part(t-chat) {
   max-width: 780px;
   margin: 0 auto;
   width: 100%;
-  padding: 0 24px 24px;
+}
+.chat-mode-inner t-chatbot::part(t-chat-input-wrapper) {
+  padding: 16px 24px 24px;
+}
+
+/* 快捷建议覆盖层：居中显示在 ChatBot 上方（空状态效果） */
+.chat-mode-inner .chat-suggestions-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  pointer-events: none;
+}
+.chat-mode-inner .chat-suggestions-wrapper .chat-suggestions {
+  pointer-events: auto;
 }
 .chat-empty {
   flex: 1; display: flex; flex-direction: column;
@@ -431,11 +452,7 @@ input, textarea { font-family: inherit; outline: none; }
 .chat-empty-title { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
 .chat-empty-desc { font-size: 14px; color: var(--text-secondary); max-width: 400px; line-height: 1.6; margin-bottom: 24px; }
 
-/* ===== Chat Suggestions Wrapper ===== */
-.chat-suggestions-wrapper {
-  padding: 0 24px 24px;
-  max-width: 780px; margin: 0 auto; width: 100%;
-}
+/* ===== Chat Suggestions ===== */
 .chat-suggestions {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -109,6 +109,7 @@ export function ProMode() {
           <div className="uni-input-box">
             <ChatSender
               placeholder="追加指令或提出新问题... Enter 发送，Shift+Enter 换行"
+              autosize={{ minRows: 1, maxRows: 6 }}
               onSend={(e: any) => {
                 const val = e?.detail?.value || '';
                 if (val.trim()) handleSend(val.trim());
