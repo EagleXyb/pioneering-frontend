@@ -67,7 +67,7 @@ export function ChatMode() {
   return (
     <div className="chat-mode-inner">
       <ChatBot
-        ref={chatBotRef}
+        ref={chatBotRef as any}
         defaultMessages={demoMessages}
         messageProps={{
           user: {
