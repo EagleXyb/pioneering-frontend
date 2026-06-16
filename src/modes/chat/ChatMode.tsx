@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useChat } from '@tdesign-react/chat';
 import { ChatMessageList } from './components/ChatMessageList';
 import { ChatInput } from './components/ChatInput';
@@ -8,6 +9,8 @@ import './chat.css';
 export default function ChatMode() {
   const activeId = useConversationStore((s) => s.activeId);
   const create = useConversationStore((s) => s.create);
+
+  const [inputValue, setInputValue] = useState('');
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
@@ -24,6 +27,20 @@ export default function ChatMode() {
 
   useChatSync(activeId, messages);
 
+  // 统一发送逻辑：创建会话 + 发送消息
+  const handleSend = (text: string) => {
+    if (!activeId) {
+      create('chat');
+    }
+    chatEngine.sendUserMessage({ prompt: text });
+    setInputValue('');
+  };
+
+  // 建议词点击：直接发送（行业标准：单步操作）
+  const handleSuggestionClick = (suggestion: string) => {
+    handleSend(suggestion);
+  };
+
   if (!activeId) {
     return (
       <div className="chat-mode">
@@ -39,15 +56,20 @@ export default function ChatMode() {
               <button
                 key={i}
                 className="chat-suggestion-btn"
-                onClick={() => {
-                  const id = create('chat');
-                }}
+                onClick={() => handleSuggestionClick(s)}
               >
                 {s}
               </button>
             ))}
           </div>
         </div>
+        <ChatInput
+          status={status}
+          value={inputValue}
+          onChange={setInputValue}
+          onSend={handleSend}
+          onStop={() => chatEngine.abortChat()}
+        />
       </div>
     );
   }
@@ -57,7 +79,9 @@ export default function ChatMode() {
       <ChatMessageList messages={messages} status={status} />
       <ChatInput
         status={status}
-        onSend={(text) => chatEngine.sendUserMessage({ prompt: text })}
+        value={inputValue}
+        onChange={setInputValue}
+        onSend={handleSend}
         onStop={() => chatEngine.abortChat()}
       />
     </div>

@@ -43,24 +43,6 @@ function SidebarItem({ conv, isActive, onSelect, onDelete }: {
   );
 }
 
-const themes: { value: 'light' | 'dark' | 'system'; icon: JSX.Element; label: string }[] = [
-  {
-    value: 'light',
-    icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="7" cy="7" r="3"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M3.1 3.1l1 1M9.9 9.9l1 1M3.1 10.9l1-1M9.9 4.1l1-1"/></svg>,
-    label: '浅色',
-  },
-  {
-    value: 'dark',
-    icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><path d="M12 8.5A5.5 5.5 0 015.5 2 5.5 5.5 0 1012 8.5z"/></svg>,
-    label: '深色',
-  },
-  {
-    value: 'system',
-    icon: <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="1" y="1" width="8" height="8" rx="1.5"/><path d="M11 5h1a1 1 0 011 1v6a1 1 0 01-1 1H6a1 1 0 01-1-1v-1"/></svg>,
-    label: '系统',
-  },
-];
-
 function AccountPopover() {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -100,38 +82,59 @@ function AccountPopover() {
 
       {open && (
         <div className="account-popover">
-          <div className="account-popover-user">
-            <div className="account-popover-avatar">李</div>
-            <div>
-              <div className="account-popover-name">李总</div>
-              <div className="account-popover-email">admin@chuangludao.com</div>
-            </div>
-          </div>
-          <div className="account-popover-label">主题</div>
-          <div className="popover-theme-switch" role="radiogroup" aria-label="主题切换">
-            {themes.map(t => (
-              <button
-                key={t.value}
-                className={`popover-theme-opt${theme === t.value ? ' active' : ''}`}
-                role="radio"
-                aria-checked={theme === t.value}
-                title={t.label}
-                onClick={() => setTheme(t.value)}
-              >
-                {t.icon}
-                {t.label}
-              </button>
-            ))}
-          </div>
           <button className="account-popover-item" onClick={() => { setOpen(false); showToast('设置页面'); }}>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="8" cy="8" r="2.5"/>
-              <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/>
+              <path d="M8.3 2.2a1 1 0 00-1.6 0l-.9 1.4a1 1 0 01-.7.5l-1.7.3a1 1 0 00-.6 1.5l1 1.5a1 1 0 010 .9l-1 1.5a1 1 0 00.6 1.5l1.7.3a1 1 0 01.7.5l.9 1.4a1 1 0 001.6 0l.9-1.4a1 1 0 01.7-.5l1.7-.3a1 1 0 00.6-1.5l-1-1.5a1 1 0 010-.9l1-1.5a1 1 0 00-.6-1.5l-1.7-.3a1 1 0 01-.7-.5z"/>
+              <circle cx="8" cy="8" r="1.5"/>
             </svg>
-            设置与偏好
+            设置
           </button>
-          <button className="account-popover-item" onClick={() => { setOpen(false); showToast('已登出'); }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3">
+
+          <div className="account-popover-row">
+            <div className="account-popover-item account-popover-item-static">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="7.5" cy="7.5" r="4.5"/>
+                <path d="M12 12L14.5 14.5M10.5 4.5A3 3 0 0112 7.5"/>
+              </svg>
+              外观
+            </div>
+            <div className="popover-theme-toggle" role="radiogroup" aria-label="主题切换">
+              <button
+                className={`popover-theme-toggle-opt${theme === 'light' ? ' active' : ''}`}
+                role="radio"
+                aria-checked={theme === 'light'}
+                onClick={() => setTheme('light')}
+              >浅色</button>
+              <button
+                className={`popover-theme-toggle-opt${theme === 'dark' ? ' active' : ''}`}
+                role="radio"
+                aria-checked={theme === 'dark'}
+                onClick={() => setTheme('dark')}
+              >深色</button>
+            </div>
+          </div>
+
+          <button className="account-popover-item" onClick={() => { setOpen(false); showToast('帮助与反馈'); }}>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="8" cy="8" r="6.5"/>
+              <path d="M6 6.5c0-1.1.9-2 2-2s2 .9 2 2c0 .8-.5 1.3-1.2 1.7-.5.3-.8.7-.8 1.3M8 12v.5"/>
+            </svg>
+            帮助与反馈
+          </button>
+
+          <button className="account-popover-item" onClick={() => { setOpen(false); showToast('检查更新'); }}>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="8" cy="8" r="6.5"/>
+              <path d="M8 4.5v3.5l2 2"/>
+              <path d="M13 8h-2M8 13v-2"/>
+            </svg>
+            检查更新
+          </button>
+
+          <div className="account-popover-divider" />
+
+          <button className="account-popover-item account-popover-logout" onClick={() => { setOpen(false); showToast('已登出'); }}>
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 10l3-3-3-3M14 7H6"/>
             </svg>
             退出登录
