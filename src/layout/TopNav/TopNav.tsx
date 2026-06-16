@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useAppContext } from '../../store/appContext';
+import { useAppStore } from '../../store/appStore';
 import { useToast } from '../../store/toastContext';
+import './topnav.css';
 
 type PreviewState = 'normal' | 'loading' | 'error' | 'empty';
 
 export function TopNav() {
-  const { toggleSidebar } = useAppContext();
+  const { toggleSidebar } = useAppStore();
   const { showToast } = useToast();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [activeState, setActiveState] = useState<PreviewState>('normal');
@@ -95,30 +96,21 @@ export function TopNav() {
           </button>
           {dropdownOpen && (
             <div className="state-preview-dropdown">
-              {(['normal','loading','error','empty'] as PreviewState[]).map(s => (
+              {(['normal', 'loading', 'error', 'empty'] as PreviewState[]).map(s => (
                 <button
                   key={s}
-                  className={`state-preview-btn${activeState === s ? ' active' : ''}`}
+                  className={activeState === s ? 'active' : ''}
                   onClick={() => handleStateChange(s)}
                 >
-                  {s === 'normal' ? '正常状态' : s === 'loading' ? '加载中' : s === 'error' ? '错误状态' : '空状态'}
+                  {s === 'normal' && '正常'}
+                  {s === 'loading' && '加载中'}
+                  {s === 'error' && '错误'}
+                  {s === 'empty' && '空状态'}
                 </button>
               ))}
             </div>
           )}
         </div>
-        <button className="nav-icon-btn" title="分享" onClick={() => showToast('分享链接已复制')}>
-          <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M4 12v2a2 2 0 002 2h6a2 2 0 002-2v-2M9 2v9M9 2l3 3M9 2L6 5"/>
-          </svg>
-        </button>
-        <button className="nav-icon-btn" title="更多" onClick={() => showToast('更多选项')}>
-          <svg viewBox="0 0 18 18" fill="currentColor">
-            <circle cx="9" cy="4" r="1.2"/>
-            <circle cx="9" cy="9" r="1.2"/>
-            <circle cx="9" cy="14" r="1.2"/>
-          </svg>
-        </button>
       </div>
     </nav>
   );
