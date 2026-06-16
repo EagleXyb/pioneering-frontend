@@ -13,12 +13,13 @@ export default function ProMode() {
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
-      endpoint: '/api/agent/chat',
+      endpoint: '/api/agent/analyze',
       stream: true,
       protocol: 'agui',
       onRequest: (params) => ({
         ...params,
         conversationId: activeId,
+        mode: 'pro',
       }),
     },
     defaultMessages: [],

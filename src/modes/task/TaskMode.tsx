@@ -12,12 +12,13 @@ export default function TaskMode() {
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
-      endpoint: '/api/agent/chat',
+      endpoint: '/api/agent/task',
       stream: true,
       protocol: 'agui',
       onRequest: (params) => ({
         ...params,
         conversationId: activeId,
+        mode: 'task',
       }),
     },
     defaultMessages: [],
