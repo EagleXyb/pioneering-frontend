@@ -159,11 +159,14 @@ export function Sidebar() {
     if (sidebarOpen) toggleSidebar();
   }, [setMode, navigate, sidebarOpen, toggleSidebar]);
 
-  const handleNewConversation = useCallback(() => {
-    const id = create(mode);
-    navigate(`/${mode}`);
-    showToast('已创建新会话');
-    (() => id)();
+  const handleNewConversation = useCallback(async () => {
+    try {
+      await create(mode);
+      navigate(`/${mode}`);
+      showToast('已创建新会话');
+    } catch {
+      showToast('创建会话失败');
+    }
   }, [create, mode, navigate, showToast]);
 
   const handleSelectConversation = useCallback((conv: Conversation) => {
@@ -237,7 +240,7 @@ export function Sidebar() {
                   conv={item}
                   isActive={item.id === activeId}
                   onSelect={() => handleSelectConversation(item)}
-                  onDelete={() => remove(item.id)}
+                  onDelete={() => { remove(item.id).catch(() => showToast('删除失败')); }}
                 />
               ))}
             </React.Fragment>

@@ -4,6 +4,7 @@ import { useChatSync } from './hooks/useChatSync';
 import { TaskMessageList } from './components/TaskMessageList';
 import { TaskInput } from './components/TaskInput';
 import { TaskPipeline } from './components/TaskPipeline';
+import { getToken } from '../../api/client';
 import './task.css';
 
 export default function TaskMode() {
@@ -12,13 +13,22 @@ export default function TaskMode() {
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
-      endpoint: '/api/agent/task',
+      endpoint: '/api/chat/completions',
       stream: true,
       protocol: 'agui',
       onRequest: (params) => ({
         ...params,
-        conversationId: activeId,
-        mode: 'task',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+        },
+        body: JSON.stringify({
+          sessionId: activeId,
+          message: params.prompt,
+          model: 'gpt-4o-mini',
+          stream: true,
+        }),
       }),
     },
     defaultMessages: [],

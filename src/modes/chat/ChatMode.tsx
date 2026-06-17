@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@tdesign-react/chat';
 import { ChatMessageList } from './components/ChatMessageList';
 import { ChatInput } from './components/ChatInput';
 import { useConversationStore } from '../../store/conversationStore';
 import { useChatSync } from './hooks/useChatSync';
+import { getMessages } from '../../api/message';
+import { stopGeneration } from '../../api/message';
+import { convertMessages } from '../../api/converter';
+import { getToken } from '../../api/client';
+import type { ChatMessagesData } from 'tdesign-web-components/lib/chat-engine';
 import './chat.css';
 
 export default function ChatMode() {
@@ -11,34 +16,78 @@ export default function ChatMode() {
   const create = useConversationStore((s) => s.create);
 
   const [inputValue, setInputValue] = useState('');
+  const [historyMessages, setHistoryMessages] = useState<ChatMessagesData[]>([]);
+  const loadingHistory = useRef(false);
+
+  // 切换会话时加载历史消息
+  useEffect(() => {
+    if (!activeId) {
+      setHistoryMessages([]);
+      return;
+    }
+    loadingHistory.current = true;
+    getMessages(activeId, undefined, 50, 'before')
+      .then((resp) => {
+        setHistoryMessages(convertMessages(resp.messages));
+      })
+      .catch(() => {
+        setHistoryMessages([]);
+      })
+      .finally(() => {
+        loadingHistory.current = false;
+      });
+  }, [activeId]);
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
-      endpoint: '/api/agent/chat',
+      endpoint: '/api/chat/completions',
       stream: true,
       protocol: 'agui',
-      onRequest: (params) => ({
-        ...params,
-        conversationId: activeId,
-      }),
+      onRequest: (params) => {
+        return {
+          ...params,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+          },
+          body: JSON.stringify({
+            sessionId: activeId,
+            message: params.prompt,
+            model: 'gpt-4o-mini',
+            stream: true,
+          }),
+        };
+      },
     },
-    defaultMessages: [],
+    defaultMessages: historyMessages,
   });
 
   useChatSync(activeId, messages);
 
   // 统一发送逻辑：创建会话 + 发送消息
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     if (!activeId) {
-      create('chat');
+      await create('chat');
     }
     chatEngine.sendUserMessage({ prompt: text });
     setInputValue('');
   };
 
-  // 建议词点击：直接发送（行业标准：单步操作）
+  // 建议词点击：直接发送
   const handleSuggestionClick = (suggestion: string) => {
     handleSend(suggestion);
+  };
+
+  // 停止生成
+  const handleStop = () => {
+    chatEngine.abortChat();
+    if (activeId) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg) {
+        stopGeneration({ sessionId: activeId, messageId: lastMsg.id }).catch(() => {});
+      }
+    }
   };
 
   if (!activeId) {
@@ -68,7 +117,7 @@ export default function ChatMode() {
           value={inputValue}
           onChange={setInputValue}
           onSend={handleSend}
-          onStop={() => chatEngine.abortChat()}
+          onStop={handleStop}
         />
       </div>
     );
@@ -82,7 +131,7 @@ export default function ChatMode() {
         value={inputValue}
         onChange={setInputValue}
         onSend={handleSend}
-        onStop={() => chatEngine.abortChat()}
+        onStop={handleStop}
       />
     </div>
   );

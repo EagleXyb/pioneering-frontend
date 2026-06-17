@@ -5,6 +5,7 @@ import { AnalysisLayout, ProMainHeader } from './components/AnalysisLayout';
 import { AnalysisMessageList } from './components/AnalysisMessageList';
 import { AnalysisInput } from './components/AnalysisInput';
 import { ProcessPanel } from './components/ProcessPanel';
+import { getToken } from '../../api/client';
 import './pro.css';
 
 export default function ProMode() {
@@ -13,13 +14,22 @@ export default function ProMode() {
 
   const { chatEngine, messages, status } = useChat({
     chatServiceConfig: {
-      endpoint: '/api/agent/analyze',
+      endpoint: '/api/chat/completions',
       stream: true,
       protocol: 'agui',
       onRequest: (params) => ({
         ...params,
-        conversationId: activeId,
-        mode: 'pro',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
+        },
+        body: JSON.stringify({
+          sessionId: activeId,
+          message: params.prompt,
+          model: 'gpt-4o-mini',
+          stream: true,
+        }),
       }),
     },
     defaultMessages: [],

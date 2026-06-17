@@ -20,7 +20,7 @@ export function useChatSync(conversationId: string | null, messages: ChatMessage
       if (firstUser) {
         const userText = firstUser.content?.find((c: any) => c.type === 'text' || c.type === 'markdown');
         const title = typeof userText?.data === 'string' ? userText.data.slice(0, 30) : '新会话';
-        updateTitle(conversationId, title);
+        updateTitle(conversationId, title).catch(() => {});
         doneRef.current = true;
       }
     }
